@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -8,21 +9,31 @@ public class DoomEngine : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    private WADData _wadData;
 
     public DoomEngine(string wadPath = "content/doom1.wad")
     {
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = Settings.Width;
+        _graphics.PreferredBackBufferHeight = Settings.Height;
+        _graphics.IsFullScreen = true;
         Content.RootDirectory = "Content";
+        IsFixedTimeStep = true;
+        TargetElapsedTime = TimeSpan.FromSeconds(1d / Settings.TargetFps);
         IsMouseVisible = true;
+        _graphics.ApplyChanges();
         WADPath = wadPath;
     }
 
     public string WADPath { get; init; }
 
+    public WADData WADData { get; private set; }
+
+    public MapRenderer MapRenderer { get; private set; }
+
     protected override void Initialize()
     {
-        _wadData = new WADData(this);
+        WADData = new WADData(this);
+        MapRenderer = new MapRenderer(this);
 
         base.Initialize();
     }
@@ -30,8 +41,7 @@ public class DoomEngine : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-
+        
     }
 
     protected override void Update(GameTime gameTime)
@@ -46,9 +56,13 @@ public class DoomEngine : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
+        _spriteBatch.Begin();
 
+        MapRenderer.Draw(_spriteBatch);
+
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
