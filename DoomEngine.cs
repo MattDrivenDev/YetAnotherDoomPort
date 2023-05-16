@@ -30,9 +30,12 @@ public class DoomEngine : Game
 
     public MapRenderer MapRenderer { get; private set; }
 
+    public Player Player { get; private set; }
+
     protected override void Initialize()
     {
         WADData = new WADData(this, Settings.StartMap);
+        Player = new Player(this);
         MapRenderer = new MapRenderer(this);
 
         base.Initialize();
@@ -49,7 +52,7 @@ public class DoomEngine : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-
+        Player.Update(gameTime);
 
         base.Update(gameTime);
     }

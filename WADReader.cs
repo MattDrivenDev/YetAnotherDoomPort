@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 
 namespace Doom;
@@ -47,6 +46,65 @@ public class WADReader : IDisposable
             directory[i] = new LumpInfo(lumpOffset, lumpSize, lumpName);
         }
         return directory;
+    }
+
+    public Thing ReadThing(int offset)
+    {
+        var x = ReadShort(offset);
+        var y = ReadShort(offset + 2);
+
+        return new Thing(
+            position: new Vector2(x, y), 
+            angle: ReadShort(offset + 4), 
+            type: ReadShort(offset + 6), 
+            flags: ReadShort(offset + 8));
+    }
+
+    public Seg ReadSeg(int offset)
+    {
+        return new Seg
+        {
+            StartVertex = ReadShort(offset),
+            EndVertex = ReadShort(offset + 2),
+            Angle = ReadShort(offset + 4),
+            Linedef = ReadShort(offset + 6),
+            Direction = ReadShort(offset + 8),
+            Offset = ReadShort(offset + 10)
+        };
+    }
+
+    public SubSector ReadSubSector(int offset)
+    {
+        var segCount = ReadShort(offset);
+        var firstSeg = ReadShort(offset + 2);
+        return new SubSector(segCount, firstSeg);
+    }
+
+    public Node ReadNode(int offset)
+    {
+        return new Node
+        {
+            PartitionX = ReadShort(offset),
+            PartitionY = ReadShort(offset + 2),
+            DeltaPartitionX = ReadShort(offset + 4),
+            DeltaPartitionY = ReadShort(offset + 6),
+            FrontBoundingBox = new Node.BBox
+            {
+                Top = ReadShort(offset + 8),
+                Bottom = ReadShort(offset + 10),
+                Left = ReadShort(offset + 12),
+                Right = ReadShort(offset + 14)
+            },
+            BackBoundingBox = new Node.BBox
+            {
+                Top = ReadShort(offset + 16),
+                Bottom = ReadShort(offset + 18),
+                Left = ReadShort(offset + 20),
+                Right = ReadShort(offset + 22)
+            },
+            FrontChild = ReadShort(offset + 24),
+            BackChild = ReadShort(offset + 26)
+        };
     }
 
     public Linedef ReadLinedef(int offset)

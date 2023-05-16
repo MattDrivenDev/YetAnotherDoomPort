@@ -13,15 +13,17 @@ public class MapRenderer
     private readonly Linedef[] _linedefs;
     private readonly (Vector2, Vector2) _mapBounds;
     private readonly SpriteFont _font;
+    private readonly Player _player;
 
     public MapRenderer(DoomEngine engine)
     {
         _engine = engine;
-        _wadData = engine.WADData;
+        _player = _engine.Player;
+        _wadData = _engine.WADData;
         _mapBounds = GetMapBounds(_wadData.Vertexes);
         _vertexes = MapVertexes(_wadData.Vertexes);
         _linedefs = _wadData.Linedefs;
-        _font = engine.Content.Load<SpriteFont>("debug");
+        _font = _engine.Content.Load<SpriteFont>("debug");
 
         foreach (var vertex in _vertexes)
         {
@@ -97,11 +99,18 @@ public class MapRenderer
         DrawMapName(spriteBatch);
         DrawVertexes(spriteBatch);
         DrawLinedefs(spriteBatch);
+        DrawPlayer(spriteBatch);
+    }
+
+    private void DrawPlayer(SpriteBatch spriteBatch)
+    {
+        var playerPosition = new Vector2(RemapX(_player.Position.X), RemapY(_player.Position.Y));
+        spriteBatch.DrawCircle(playerPosition, 3, Color.Blue);
     }
 
     private void DrawMapName(SpriteBatch spriteBatch)
     {
-        var mapName = _wadData.MapName;
+        var mapName = $"MAP: {_wadData.MapName}";
         var mapNameSize = _font.MeasureString(mapName);
         var mapNamePosition = new Vector2(Settings.Width - mapNameSize.X - 10, 10);
         spriteBatch.DrawString(_font, mapName, mapNamePosition, Color.White);
