@@ -16,6 +16,7 @@ public class WADData
         MapName = mapName;
         MapIndex = GetLumpIndex(mapName);
         Vertexes = GetLumpData(_reader.ReadVertex, MapIndex + LumpIndices.VERTEXES, 4, 0);
+        Linedefs = GetLumpData(_reader.ReadLinedef, MapIndex + LumpIndices.LINEDEFS, 14, 0);
 
         foreach (var vertex in Vertexes)
         {
@@ -28,6 +29,7 @@ public class WADData
     public string MapName { get; init; }
     public int MapIndex { get; init; }
     public Vector2[] Vertexes { get; init; }
+    public Linedef[] Linedefs { get; init; }
 
     private T[] GetLumpData<T>(Func<int, T> read, int lumpIndex, int numberOfBytes, int headerLength)
     {

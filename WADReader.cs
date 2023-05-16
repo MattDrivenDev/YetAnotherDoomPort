@@ -49,6 +49,20 @@ public class WADReader : IDisposable
         return directory;
     }
 
+    public Linedef ReadLinedef(int offset)
+    {
+        return new Linedef
+        {
+            StartVertex = ReadShort(offset),
+            EndVertex = ReadShort(offset + 2),
+            Flags = ReadShort(offset + 4),
+            LineType = ReadShort(offset + 6),
+            SectorTag = ReadShort(offset + 8),
+            FrontSidedef = ReadShort(offset + 10),
+            BackSidedef = ReadShort(offset + 12)
+        };
+    }
+
     public Vector2 ReadVertex(int offset)
     {
         var x = ReadShort(offset);

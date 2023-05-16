@@ -10,6 +10,7 @@ public class MapRenderer
     private readonly DoomEngine _engine;
     private readonly WADData _wadData;
     private readonly Vector2[] _vertexes;
+    private readonly Linedef[] _linedefs;
     private readonly (Vector2, Vector2) _mapBounds;
 
     public MapRenderer(DoomEngine engine)
@@ -18,6 +19,7 @@ public class MapRenderer
         _wadData = engine.WADData;
         _mapBounds = GetMapBounds(_wadData.Vertexes);
         _vertexes = MapVertexes(_wadData.Vertexes);
+        _linedefs = _wadData.Linedefs;
 
         foreach (var vertex in _vertexes)
         {
@@ -91,6 +93,7 @@ public class MapRenderer
     {
         DrawScreenResolution(spriteBatch);
         DrawVertexes(spriteBatch);
+        DrawLinedefs(spriteBatch);
     }
 
     private void DrawScreenResolution(SpriteBatch spriteBatch)
@@ -107,6 +110,17 @@ public class MapRenderer
         for (var i = 0; i < _vertexes.Length; i++)
         {
             spriteBatch.DrawCircle(_vertexes[i], 2, Color.White);
+        }
+    }
+
+    private void DrawLinedefs(SpriteBatch spriteBatch)
+    {
+        for (var i = 0; i < _linedefs.Length; i++)
+        {
+            var linedef = _linedefs[i];
+            var startVertex = _vertexes[linedef.StartVertex];
+            var endVertex = _vertexes[linedef.EndVertex];
+            spriteBatch.DrawLine(startVertex, endVertex, Color.DarkOrange, 1);
         }
     }
 }
