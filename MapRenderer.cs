@@ -12,6 +12,7 @@ public class MapRenderer
     private readonly Vector2[] _vertexes;
     private readonly Linedef[] _linedefs;
     private readonly (Vector2, Vector2) _mapBounds;
+    private readonly SpriteFont _font;
 
     public MapRenderer(DoomEngine engine)
     {
@@ -20,6 +21,7 @@ public class MapRenderer
         _mapBounds = GetMapBounds(_wadData.Vertexes);
         _vertexes = MapVertexes(_wadData.Vertexes);
         _linedefs = _wadData.Linedefs;
+        _font = engine.Content.Load<SpriteFont>("debug");
 
         foreach (var vertex in _vertexes)
         {
@@ -92,16 +94,33 @@ public class MapRenderer
     public void Draw(SpriteBatch spriteBatch)
     {
         DrawScreenResolution(spriteBatch);
+        DrawMapName(spriteBatch);
         DrawVertexes(spriteBatch);
         DrawLinedefs(spriteBatch);
+    }
+
+    private void DrawMapName(SpriteBatch spriteBatch)
+    {
+        var mapName = _wadData.MapName;
+        var mapNameSize = _font.MeasureString(mapName);
+        var mapNamePosition = new Vector2(Settings.Width - mapNameSize.X - 10, 10);
+        spriteBatch.DrawString(_font, mapName, mapNamePosition, Color.White);
     }
 
     private void DrawScreenResolution(SpriteBatch spriteBatch)
     {
         var thickness = 2;
+
+        // Draw the top border
         spriteBatch.DrawLine(new Vector2(0, 0), new Vector2(Settings.Width, 0), Color.White, thickness);
+
+        // Draw the left border
         spriteBatch.DrawLine(new Vector2(thickness, 0), new Vector2(thickness, Settings.Height), Color.White, thickness);
-        spriteBatch.DrawLine(new Vector2(Settings.Width - thickness, 0), new Vector2(Settings.Width - thickness, Settings.Height), Color.White, thickness);
+
+        // Draw the right border
+        spriteBatch.DrawLine(new Vector2(Settings.Width, 0), new Vector2(Settings.Width, Settings.Height), Color.White, thickness);
+        
+        // Draw the bottom border
         spriteBatch.DrawLine(new Vector2(0, Settings.Height - thickness), new Vector2(Settings.Width, Settings.Height - thickness), Color.White, thickness);
     }
 

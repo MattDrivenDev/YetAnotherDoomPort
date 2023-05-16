@@ -32,7 +32,7 @@ public class DoomEngine : Game
 
     protected override void Initialize()
     {
-        WADData = new WADData(this);
+        WADData = new WADData(this, Settings.StartMap);
         MapRenderer = new MapRenderer(this);
 
         base.Initialize();
@@ -61,6 +61,7 @@ public class DoomEngine : Game
         _spriteBatch.Begin();
 
         MapRenderer.Draw(_spriteBatch);
+        //_spriteBatch.DrawString
 
         _spriteBatch.End();
 
