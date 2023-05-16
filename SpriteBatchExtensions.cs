@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,6 +15,33 @@ public static class SpriteBatchExtensions
             _pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
             _pixel.SetData(new[] {Color.White});
         }
+    }
+
+    
+
+    public static void DrawLine(
+        this SpriteBatch spriteBatch, 
+        Vector2 start, 
+        Vector2 end, 
+        Color color, 
+        Single thickness)
+    {
+        EnsurePixel(spriteBatch);
+
+        var edge = end - start;
+        var rotation = MathF.Atan2(edge.Y, edge.X);
+        var lineScale = new Vector2(edge.Length(), thickness);
+
+        spriteBatch.Draw(
+            _pixel, 
+            start, 
+            null, 
+            color, 
+            rotation, 
+            Vector2.Zero, 
+            lineScale, 
+            SpriteEffects.None, 
+            0);
     }
 
     public static void DrawCircle(
