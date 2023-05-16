@@ -31,21 +31,47 @@ public class MapRenderer
     }
 
     private float RemapX(float x)
-    {
+    {        
+        // Define the outer boundaries for the remapping
         var outerMinX = 30;
         var outerMaxX = Settings.Width - 30;
+
+        // Get the minimum and maximum X values from the map bounds
         var minX = _mapBounds.Item1.X;
         var maxX = _mapBounds.Item2.X;
-        return (Math.Max(minX, Math.Min(x, maxX) - minX)) * (outerMaxX - outerMinX) / (maxX - minX) + outerMinX;
+
+        // Clamp the input X value within the map bounds
+        var clampedX = Math.Max(minX, Math.Min(x, maxX));
+
+        // Scale the clamped X value
+        var normalizedX = (clampedX - minX) / (maxX - minX);
+
+        // Remap the normalized X value to the outer range
+        var remappedX = normalizedX * (outerMaxX - outerMinX) + outerMinX;
+
+        return remappedX;
     }
 
     private float RemapY(float y)
     {
+        // Define the outer boundaries for the remapping
         var outerMinY = 30;
         var outerMaxY = Settings.Height - 30;
+
+        // Get the minimum and maximum Y values from the map bounds
         var minY = _mapBounds.Item1.Y;
         var maxY = _mapBounds.Item2.Y;
-        return Settings.Height - (Math.Max(minY, Math.Min(y, maxY) - minY)) * (outerMaxY - outerMinY) / (maxY - minY) - outerMinY;
+
+        // Clamp the input Y value within the map bounds
+        var clampedY = Math.Max(minY, Math.Min(y, maxY) - minY);  
+
+        // Scale the clamped Y value
+        var scaledY = clampedY * (outerMaxY - outerMinY) / (maxY - minY);  
+
+        // Remap the scaled Y value to the outer boundaries
+        var remappedY = Settings.Height - scaledY - outerMinY;  
+
+        return remappedY;
     }
 
     private (Vector2, Vector2) GetMapBounds(Vector2[] vertexes)
