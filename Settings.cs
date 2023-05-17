@@ -2,7 +2,7 @@ namespace Doom;
 
 public static class Settings
 {
-    public static string StartMap = "E1M8";
+    public static string StartMap = "E1M1";
     public static int DoomWidth = 320;
     public static int DoomHeight = 200;
     public static int Scale = 4;

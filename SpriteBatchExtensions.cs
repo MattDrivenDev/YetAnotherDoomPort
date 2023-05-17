@@ -17,8 +17,6 @@ public static class SpriteBatchExtensions
         }
     }
 
-    
-
     public static void DrawLine(
         this SpriteBatch spriteBatch, 
         Vector2 start, 
@@ -68,5 +66,22 @@ public static class SpriteBatchExtensions
     {
         EnsurePixel(spriteBatch);
         spriteBatch.Draw(_pixel, rectangle, color);
+    }
+
+    public static void DrawEmptyRectangle(
+        this SpriteBatch spriteBatch, 
+        Rectangle rectangle,
+        Color color,
+        int thickness = 1)
+    {
+        EnsurePixel(spriteBatch);
+        var topLeft = new Vector2(rectangle.X, rectangle.Y);
+        var topRight = new Vector2(rectangle.X + rectangle.Width, rectangle.Y);
+        var bottomLeft = new Vector2(rectangle.X, rectangle.Y + rectangle.Height);
+        var bottomRight = new Vector2(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height);
+        spriteBatch.DrawLine(topLeft, topRight, color, thickness);
+        spriteBatch.DrawLine(topRight, bottomRight, color, thickness);
+        spriteBatch.DrawLine(bottomRight, bottomLeft, color, thickness);
+        spriteBatch.DrawLine(bottomLeft, topLeft, color, thickness);
     }
 }

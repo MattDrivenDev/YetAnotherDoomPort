@@ -32,10 +32,13 @@ public class DoomEngine : Game
 
     public Player Player { get; private set; }
 
+    public BSP BSP { get; private set; }
+
     protected override void Initialize()
     {
         WADData = new WADData(this, Settings.StartMap);
         Player = new Player(this);
+        BSP = new BSP(this);
         MapRenderer = new MapRenderer(this);
 
         base.Initialize();
@@ -53,6 +56,7 @@ public class DoomEngine : Game
             Exit();
 
         Player.Update(gameTime);
+        BSP.Update(gameTime);
 
         base.Update(gameTime);
     }

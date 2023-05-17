@@ -14,6 +14,8 @@ public class MapRenderer
     private readonly (Vector2, Vector2) _mapBounds;
     private readonly SpriteFont _font;
     private readonly Player _player;
+    private readonly Node[] _nodes;
+    private readonly BSP _bsp;
 
     public MapRenderer(DoomEngine engine)
     {
@@ -23,6 +25,8 @@ public class MapRenderer
         _mapBounds = GetMapBounds(_wadData.Vertexes);
         _vertexes = MapVertexes(_wadData.Vertexes);
         _linedefs = _wadData.Linedefs;
+        _nodes = _wadData.Nodes;
+        _bsp = _engine.BSP;
         _font = _engine.Content.Load<SpriteFont>("debug");
 
         foreach (var vertex in _vertexes)
@@ -97,15 +101,38 @@ public class MapRenderer
     {
         DrawScreenResolution(spriteBatch);
         DrawMapName(spriteBatch);
-        DrawVertexes(spriteBatch);
+        // DrawVertexes(spriteBatch);
         DrawLinedefs(spriteBatch);
         DrawPlayer(spriteBatch);
+        DrawNode(spriteBatch, _bsp.RootNode);
     }
+
+    private void DrawBoundingBox(SpriteBatch spriteBatch, Node.BBox bbox, Color color)
+    {
+        var topLeft = new Vector2(RemapX(bbox.Left), RemapY(bbox.Top));
+        var bottomRight = new Vector2(RemapX(bbox.Right), RemapY(bbox.Bottom));
+        var rectangle = new Rectangle(
+            (int)topLeft.X, 
+            (int)topLeft.Y, 
+            (int)(bottomRight.X - topLeft.X), 
+            (int)(bottomRight.Y - topLeft.Y));
+        spriteBatch.DrawEmptyRectangle(rectangle, color, 1);
+    }
+
+    private void DrawNode(SpriteBatch spriteBatch, Node node)
+    {
+        DrawBoundingBox(spriteBatch, node.FrontBoundingBox, Color.Green);
+        DrawBoundingBox(spriteBatch, node.BackBoundingBox, Color.Red);
+
+        var partitionStart = new Vector2(RemapX(node.PartitionX), RemapY(node.PartitionY));
+        var partitionEnd = new Vector2(RemapX(node.PartitionX + node.DeltaPartitionX), RemapY(node.PartitionY + node.DeltaPartitionY));
+        spriteBatch.DrawLine(partitionStart, partitionEnd, Color.Blue, 1);
+    } 
 
     private void DrawPlayer(SpriteBatch spriteBatch)
     {
         var playerPosition = new Vector2(RemapX(_player.Position.X), RemapY(_player.Position.Y));
-        spriteBatch.DrawCircle(playerPosition, 3, Color.Blue);
+        spriteBatch.DrawCircle(playerPosition, 3, Color.DarkOrange);
     }
 
     private void DrawMapName(SpriteBatch spriteBatch)
@@ -148,7 +175,7 @@ public class MapRenderer
             var linedef = _linedefs[i];
             var startVertex = _vertexes[linedef.StartVertex];
             var endVertex = _vertexes[linedef.EndVertex];
-            spriteBatch.DrawLine(startVertex, endVertex, Color.DarkOrange, 1);
+            spriteBatch.DrawLine(startVertex, endVertex, new Color(70 ,70 ,70), 1);
         }
     }
 }
