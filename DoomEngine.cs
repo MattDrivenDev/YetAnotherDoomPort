@@ -68,7 +68,6 @@ public class DoomEngine : Game
         _spriteBatch.Begin();
 
         MapRenderer.Draw(_spriteBatch);
-        //_spriteBatch.DrawString
 
         _spriteBatch.End();
 

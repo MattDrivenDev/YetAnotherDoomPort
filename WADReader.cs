@@ -55,9 +55,9 @@ public class WADReader : IDisposable
 
         return new Thing(
             position: new Vector2(x, y), 
-            angle: ReadShort(offset + 4), 
-            type: ReadShort(offset + 6), 
-            flags: ReadShort(offset + 8));
+            angle: ReadUShort(offset + 4), 
+            type: ReadUShort(offset + 6), 
+            flags: ReadUShort(offset + 8));
     }
 
     public Seg ReadSeg(int offset)
@@ -102,8 +102,8 @@ public class WADReader : IDisposable
                 Left = ReadShort(offset + 20),
                 Right = ReadShort(offset + 22)
             },
-            FrontChild = ReadShort(offset + 24),
-            BackChild = ReadShort(offset + 26)
+            FrontChild = ReadUShort(offset + 24),
+            BackChild = ReadUShort(offset + 26)
         };
     }
 
@@ -138,6 +138,12 @@ public class WADReader : IDisposable
     {
         var bytes = ReadBytes(offset, 2);
         return BitConverter.ToInt16(bytes);
+    }
+
+    public ushort ReadUShort(int offset)
+    {
+        var bytes = ReadBytes(offset, 2);
+        return BitConverter.ToUInt16(bytes);
     }
 
     public int ReadInt(int offset)

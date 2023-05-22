@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -104,7 +107,8 @@ public class MapRenderer
         // DrawVertexes(spriteBatch);
         DrawLinedefs(spriteBatch);
         DrawPlayer(spriteBatch);
-        DrawNode(spriteBatch, _bsp.RootNode);
+        DrawNode(spriteBatch, _bsp.RootNodeIndex);
+        DrawSegs(spriteBatch);
     }
 
     private void DrawBoundingBox(SpriteBatch spriteBatch, Node.BBox bbox, Color color)
@@ -119,8 +123,10 @@ public class MapRenderer
         spriteBatch.DrawEmptyRectangle(rectangle, color, 1);
     }
 
-    private void DrawNode(SpriteBatch spriteBatch, Node node)
+    private void DrawNode(SpriteBatch spriteBatch, int nodeIndex)
     {
+        var node = _nodes[nodeIndex];
+
         DrawBoundingBox(spriteBatch, node.FrontBoundingBox, Color.Green);
         DrawBoundingBox(spriteBatch, node.BackBoundingBox, Color.Red);
 
@@ -177,5 +183,39 @@ public class MapRenderer
             var endVertex = _vertexes[linedef.EndVertex];
             spriteBatch.DrawLine(startVertex, endVertex, new Color(70 ,70 ,70), 1);
         }
+    }
+
+    private List<(Seg, int)> _drawnSegs = new List<(Seg, int)>();
+
+    private void DrawSegs(SpriteBatch spriteBatch)
+    {
+        if (_bsp.SegsToDraw.Any())
+        {
+            var tuple = _bsp.SegsToDraw.First();
+            _drawnSegs.Add(tuple);
+            _bsp.SegsToDraw.RemoveFirst();
+        }
+
+        foreach (var (seg, subSectorIndex) in _drawnSegs)
+        {
+            DrawSeg(spriteBatch, seg, subSectorIndex);
+        }
+    }
+
+    public void DrawSeg(SpriteBatch spriteBatch, Seg seg, int subSectorIndex)
+    {
+        var startVertex = _vertexes[seg.StartVertex];
+        var endVertex = _vertexes[seg.EndVertex];
+        var color = GetRandomColor(subSectorIndex);
+        spriteBatch.DrawLine(startVertex, endVertex, color, 1);
+    }
+
+    private Color GetRandomColor(int seed)
+    {
+        var random = new Random(seed);
+        var r = random.Next(100, 255);
+        var g = random.Next(100, 255);
+        var b = random.Next(100, 255);
+        return new Color(r, g, b);
     }
 }

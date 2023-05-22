@@ -4,8 +4,8 @@ namespace Doom;
 
 public class Thing
 {
-    public Thing(Vector2 position, short angle, 
-        short type, short flags)
+    public Thing(Vector2 position, ushort angle, 
+        ushort type, ushort flags)
     {
         Position = position;
         Angle = angle;
@@ -14,7 +14,7 @@ public class Thing
     }
 
     public Vector2 Position { get; init; }
-    public short Angle { get; init; }
-    public short Type { get; init; }
-    public short Flags { get; init; }
+    public ushort Angle { get; init; }
+    public ushort Type { get; init; }
+    public ushort Flags { get; init; }
 }

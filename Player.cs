@@ -8,7 +8,7 @@ public class Player
     private readonly DoomEngine _engine;
     private readonly Thing _thing;
     private Vector2 _position;
-    private short _angle;
+    private ushort _angle;
 
     public Player(DoomEngine engine)
     {

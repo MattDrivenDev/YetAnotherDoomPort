@@ -5,7 +5,7 @@ public struct Node
     public Node(short partitionX, short partitionY, 
         short deltaPartitionX, short deltaPartitionY, 
         BBox frontBoundingBox, BBox backBoundingBox, 
-        short frontChild, short backChild)
+        ushort frontChild, ushort backChild)
     {
         PartitionX = partitionX;
         PartitionY = partitionY;
@@ -23,8 +23,8 @@ public struct Node
     public short DeltaPartitionY { get; init; }
     public BBox FrontBoundingBox { get; init; }
     public BBox BackBoundingBox { get; init; }
-    public short FrontChild { get; init; }
-    public short BackChild { get; init; }
+    public ushort FrontChild { get; init; }
+    public ushort BackChild { get; init; }
 
     public struct BBox
     {
