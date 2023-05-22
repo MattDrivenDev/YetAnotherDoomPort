@@ -107,7 +107,7 @@ public class MapRenderer
         // DrawVertexes(spriteBatch);
         DrawLinedefs(spriteBatch);
         DrawPlayer(spriteBatch);
-        DrawNode(spriteBatch, _bsp.RootNodeIndex);
+        // DrawNode(spriteBatch, _bsp.RootNodeIndex);
         DrawSegs(spriteBatch);
     }
 
@@ -139,6 +139,33 @@ public class MapRenderer
     {
         var playerPosition = new Vector2(RemapX(_player.Position.X), RemapY(_player.Position.Y));
         spriteBatch.DrawCircle(playerPosition, 3, Color.DarkOrange);
+        DrawPlayerDirection(spriteBatch, playerPosition);
+        DrawPlayerFOV(spriteBatch, playerPosition);
+    }
+
+    private void DrawPlayerDirection(SpriteBatch spriteBatch, Vector2 playerPosition)
+    {
+        var x = RemapX(_player.Position.X + (MathF.Cos(_player.Angle) * Settings.Height));
+        var y = RemapY(_player.Position.Y + (MathF.Sin(_player.Angle) * Settings.Height));
+        var direction = new Vector2(x, y);
+        spriteBatch.DrawLine(playerPosition, direction, Color.DarkOrange, 1);
+    }
+
+    private void DrawPlayerFOV(SpriteBatch spriteBatch, Vector2 remappedPosition)
+    {
+        var unmappedPosition = _player.Position;
+        var angle = _player.Angle;
+        var sin_a = MathF.Sin(angle + MathHelper.ToRadians(Settings.HalfFOV));
+        var cos_a = MathF.Cos(angle + MathHelper.ToRadians(Settings.HalfFOV));
+        var sin_b = MathF.Sin(angle - MathHelper.ToRadians(Settings.HalfFOV));
+        var cos_b = MathF.Cos(angle - MathHelper.ToRadians(Settings.HalfFOV));
+        var length = Settings.Height;
+
+        var fov_a = new Vector2(RemapX(unmappedPosition.X + (cos_a * length)), RemapY(unmappedPosition.Y + (sin_a * length)));
+        var fov_b = new Vector2(RemapX(unmappedPosition.X + (cos_b * length)), RemapY(unmappedPosition.Y + (sin_b * length)));
+        
+        spriteBatch.DrawLine(remappedPosition, fov_a, Color.Red, 2);        
+        spriteBatch.DrawLine(remappedPosition, fov_b, Color.Blue, 2);
     }
 
     private void DrawMapName(SpriteBatch spriteBatch)
@@ -181,22 +208,13 @@ public class MapRenderer
             var linedef = _linedefs[i];
             var startVertex = _vertexes[linedef.StartVertex];
             var endVertex = _vertexes[linedef.EndVertex];
-            spriteBatch.DrawLine(startVertex, endVertex, new Color(70 ,70 ,70), 1);
+            spriteBatch.DrawLine(startVertex, endVertex, Color.DarkRed, 1);
         }
     }
 
-    private List<(Seg, int)> _drawnSegs = new List<(Seg, int)>();
-
     private void DrawSegs(SpriteBatch spriteBatch)
     {
-        if (_bsp.SegsToDraw.Any())
-        {
-            var tuple = _bsp.SegsToDraw.First();
-            _drawnSegs.Add(tuple);
-            _bsp.SegsToDraw.RemoveFirst();
-        }
-
-        foreach (var (seg, subSectorIndex) in _drawnSegs)
+        foreach (var (seg, subSectorIndex) in _bsp.SegsToDraw)
         {
             DrawSeg(spriteBatch, seg, subSectorIndex);
         }
@@ -206,8 +224,7 @@ public class MapRenderer
     {
         var startVertex = _vertexes[seg.StartVertex];
         var endVertex = _vertexes[seg.EndVertex];
-        var color = GetRandomColor(subSectorIndex);
-        spriteBatch.DrawLine(startVertex, endVertex, color, 1);
+        spriteBatch.DrawLine(startVertex, endVertex, Color.Green, 1);
     }
 
     private Color GetRandomColor(int seed)

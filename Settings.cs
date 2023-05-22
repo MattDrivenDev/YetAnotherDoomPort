@@ -11,4 +11,8 @@ public static class Settings
     public static int HalfWidth = Width / 2;
     public static int HalfHeight = Height / 2;
     public static int TargetFps = 60;
+    public static int FOV = 90;
+    public static int HalfFOV = FOV / 2;
+    public static float PlayerSpeed = 0.3f;
+    public static float PlayerRotationSpeed = 0.005f;
 } 

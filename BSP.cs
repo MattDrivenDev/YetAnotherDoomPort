@@ -32,6 +32,7 @@ public class BSP
 
     public void Update(GameTime gameTime)
     {
+        SegsToDraw.Clear();
         RenderBSPNode(_rootNodeIndex);
     }
 
