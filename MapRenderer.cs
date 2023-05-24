@@ -120,7 +120,7 @@ public class MapRenderer
             (int)topLeft.Y, 
             (int)(bottomRight.X - topLeft.X), 
             (int)(bottomRight.Y - topLeft.Y));
-        spriteBatch.DrawEmptyRectangle(rectangle, color, 1);
+        spriteBatch.DrawEmptyRectangle(rectangle, color, 2);
     }
 
     private void DrawNode(SpriteBatch spriteBatch, int nodeIndex)
@@ -132,14 +132,14 @@ public class MapRenderer
 
         var partitionStart = new Vector2(RemapX(node.PartitionX), RemapY(node.PartitionY));
         var partitionEnd = new Vector2(RemapX(node.PartitionX + node.DeltaPartitionX), RemapY(node.PartitionY + node.DeltaPartitionY));
-        spriteBatch.DrawLine(partitionStart, partitionEnd, Color.Blue, 1);
+        spriteBatch.DrawLine(partitionStart, partitionEnd, Color.Blue, 2);
     } 
 
     private void DrawPlayer(SpriteBatch spriteBatch)
     {
         var playerPosition = new Vector2(RemapX(_player.Position.X), RemapY(_player.Position.Y));
         spriteBatch.DrawCircle(playerPosition, 3, Color.DarkOrange);
-        DrawPlayerDirection(spriteBatch, playerPosition);
+        // DrawPlayerDirection(spriteBatch, playerPosition);
         DrawPlayerFOV(spriteBatch, playerPosition);
     }
 
@@ -148,7 +148,7 @@ public class MapRenderer
         var x = RemapX(_player.Position.X + (MathF.Cos(_player.Angle) * Settings.Height));
         var y = RemapY(_player.Position.Y + (MathF.Sin(_player.Angle) * Settings.Height));
         var direction = new Vector2(x, y);
-        spriteBatch.DrawLine(playerPosition, direction, Color.DarkOrange, 1);
+        spriteBatch.DrawLine(playerPosition, direction, Color.DarkOrange, 2);
     }
 
     private void DrawPlayerFOV(SpriteBatch spriteBatch, Vector2 remappedPosition)
@@ -164,8 +164,8 @@ public class MapRenderer
         var fov_a = new Vector2(RemapX(unmappedPosition.X + (cos_a * length)), RemapY(unmappedPosition.Y + (sin_a * length)));
         var fov_b = new Vector2(RemapX(unmappedPosition.X + (cos_b * length)), RemapY(unmappedPosition.Y + (sin_b * length)));
         
-        spriteBatch.DrawLine(remappedPosition, fov_a, Color.Red, 2);        
-        spriteBatch.DrawLine(remappedPosition, fov_b, Color.Blue, 2);
+        spriteBatch.DrawLine(remappedPosition, fov_a, Color.DarkOrange, 2);        
+        spriteBatch.DrawLine(remappedPosition, fov_b, Color.DarkOrange, 2);
     }
 
     private void DrawMapName(SpriteBatch spriteBatch)
@@ -208,7 +208,7 @@ public class MapRenderer
             var linedef = _linedefs[i];
             var startVertex = _vertexes[linedef.StartVertex];
             var endVertex = _vertexes[linedef.EndVertex];
-            spriteBatch.DrawLine(startVertex, endVertex, Color.DarkRed, 1);
+            spriteBatch.DrawLine(startVertex, endVertex, Color.DarkRed, 2);
         }
     }
 
@@ -222,9 +222,9 @@ public class MapRenderer
 
     public void DrawSeg(SpriteBatch spriteBatch, Seg seg, int subSectorIndex)
     {
-        var startVertex = _vertexes[seg.StartVertex];
-        var endVertex = _vertexes[seg.EndVertex];
-        spriteBatch.DrawLine(startVertex, endVertex, Color.Green, 1);
+        var startVertex = _vertexes[seg.StartVertexId];
+        var endVertex = _vertexes[seg.EndVertexId];
+        spriteBatch.DrawLine(startVertex, endVertex, Color.Green, 2);
     }
 
     private Color GetRandomColor(int seed)

@@ -39,6 +39,15 @@ public class WADData
     public Seg[] Segs { get; init; }
     public Thing[] Things { get; init; }
 
+    public static float FromBAMToRadians(short bamAngle)
+    {
+        const float radiansPerBAM = MathHelper.TwoPi / 65536f;
+        return radiansPerBAM * bamAngle;
+    }
+
+    public static float FromBAMToDegrees(short bamAngle) => 
+        MathHelper.ToDegrees(FromBAMToRadians(bamAngle));
+
     private T[] GetLumpData<T>(Func<int, T> read, int lumpIndex, int numberOfBytes, int headerLength)
     {
         var lumpInfo = _reader.Directory[lumpIndex];

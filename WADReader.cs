@@ -64,10 +64,10 @@ public class WADReader : IDisposable
     {
         return new Seg
         {
-            StartVertex = ReadShort(offset),
-            EndVertex = ReadShort(offset + 2),
+            StartVertexId = ReadShort(offset),
+            EndVertexId = ReadShort(offset + 2),
             Angle = ReadShort(offset + 4),
-            Linedef = ReadShort(offset + 6),
+            LinedefId = ReadShort(offset + 6),
             Direction = ReadShort(offset + 8),
             Offset = ReadShort(offset + 10)
         };

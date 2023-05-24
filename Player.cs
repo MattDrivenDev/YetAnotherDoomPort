@@ -64,6 +64,11 @@ public class Player
             delta.Y -= cos;
         }
 
+        if (delta.X != 0 && delta.Y != 0)
+        {
+            delta *= DiagonalMovementSpeedCorrection;
+        }
+
         _position += delta;
     }
 
