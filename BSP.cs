@@ -30,6 +30,7 @@ public class BSP
 
     public int RootNodeIndex => _rootNodeIndex;
     public LinkedList<(Seg, int)> SegsToDraw { get; } = new();
+    public LinkedList<(int, int, int)> VerticalLinesToDraw { get; } = new();
 
     public void Update(GameTime gameTime)
     {
@@ -37,7 +38,22 @@ public class BSP
         RenderBSPNode(_rootNodeIndex);
     }
 
-    private bool CanAddSegToFOV(Vector2 a, Vector2 b)
+    private int AngleToX(float angle)
+    {
+        float x;
+        if (angle > 0)
+        {
+            x = Settings.ScreenDistance - MathF.Tan(MathHelper.ToRadians(angle)) * Settings.HalfWidth;
+        } 
+        else
+        {
+            x = -MathF.Tan(MathHelper.ToRadians(angle)) * Settings.HalfWidth + (int)Settings.ScreenDistance;
+        }
+        
+        return (int)x;
+    }
+
+    private (int, int, float)? CanAddSegToFOV(Vector2 a, Vector2 b)
     {
         var angle1 = PointToAngle(a);
         var angle2 = PointToAngle(b);
@@ -46,8 +62,10 @@ public class BSP
         // Backface culling
         if (span >= 180f)
         {
-            return false;
+            return null;
         }
+
+        var angle1a = angle1;
 
         var playerAngle = MathHelper.ToDegrees(_player.Angle);
         angle1 -= playerAngle;
@@ -55,17 +73,32 @@ public class BSP
         var span1 = NormalizeAngleInDegrees(angle1 + Settings.HalfFOV);
         var span2 = NormalizeAngleInDegrees(Settings.HalfFOV - angle2);
 
-        if (span1 > Settings.FOV && span1 >= span + Settings.FOV)
+        if (span1 > Settings.FOV)
         {
-            return false;
+            if (span1 >= span + Settings.FOV)
+            {
+                return null;
+            }
+
+            // Clipping
+            angle1 = Settings.HalfFOV;
         }
 
-        if (span2 > Settings.FOV && span2 >= span + Settings.FOV)
+        if (span2 > Settings.FOV)
         {
-            return false;
+            if (span2 >= span + Settings.FOV)
+            {
+                return null;
+            }
+
+            // Clipping
+            angle2 = -Settings.HalfFOV;
         }
 
-        return true;
+        var x1 = AngleToX(angle1);
+        var x2 = AngleToX(angle2);
+
+        return (x1, x2, angle1a);
     }
 
     private void RenderSubSector(int subSectorId)
@@ -78,9 +111,13 @@ public class BSP
             var seg = _segs[subSector.FirstSeg  + i];
             var a = _wadData.Vertexes[seg.StartVertexId];
             var b = _wadData.Vertexes[seg.EndVertexId];
-            if (CanAddSegToFOV(a, b))
+
+            var drawSegResult = CanAddSegToFOV(a, b);
+            if (drawSegResult.HasValue)
             {
+                var (x1, x2, angle) = drawSegResult.Value;
                 SegsToDraw.AddLast((seg, subSectorId));
+                VerticalLinesToDraw.AddLast((x1, x2, subSectorId));
             }
         }
     }

@@ -102,13 +102,14 @@ public class MapRenderer
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        DrawScreenResolution(spriteBatch);
-        DrawMapName(spriteBatch);
+        // DrawScreenResolution(spriteBatch);
+        // DrawMapName(spriteBatch);
         // DrawVertexes(spriteBatch);
-        DrawLinedefs(spriteBatch);
-        DrawPlayer(spriteBatch);
+        // DrawLinedefs(spriteBatch);
+        // DrawPlayer(spriteBatch);
         // DrawNode(spriteBatch, _bsp.RootNodeIndex);
-        DrawSegs(spriteBatch);
+        // DrawSegs(spriteBatch);
+        DrawVerticalLines(spriteBatch);
     }
 
     private void DrawBoundingBox(SpriteBatch spriteBatch, Node.BBox bbox, Color color)
@@ -209,6 +210,22 @@ public class MapRenderer
             var startVertex = _vertexes[linedef.StartVertex];
             var endVertex = _vertexes[linedef.EndVertex];
             spriteBatch.DrawLine(startVertex, endVertex, Color.DarkRed, 2);
+        }
+    }
+
+    private void DrawVerticalLines(SpriteBatch spriteBatch)
+    {
+        foreach (var (x1, x2, subSectorId) in _bsp.VerticalLinesToDraw)
+        {
+            var color = GetRandomColor(subSectorId);
+
+            var startX1 = new Vector2(x1, 0);
+            var endX1 = new Vector2(x1, Settings.Height);
+            spriteBatch.DrawLine(startX1, endX1, color, 2);
+
+            var startX2 = new Vector2(x2, 0);
+            var endX2 = new Vector2(x2, Settings.Height);
+            spriteBatch.DrawLine(startX2, endX2, color, 2);
         }
     }
 
