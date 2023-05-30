@@ -15,7 +15,7 @@ public class DoomEngine : Game
         _graphics = new GraphicsDeviceManager(this);
         _graphics.PreferredBackBufferWidth = Settings.Width;
         _graphics.PreferredBackBufferHeight = Settings.Height;
-        _graphics.IsFullScreen = true;
+        _graphics.IsFullScreen = false;
         Content.RootDirectory = "Content";
         IsFixedTimeStep = true;
         TargetElapsedTime = TimeSpan.FromSeconds(1d / Settings.TargetFps);
@@ -34,10 +34,16 @@ public class DoomEngine : Game
 
     public BSP BSP { get; private set; }
 
+    public ViewRenderer ViewRenderer { get; private set; }
+
+    public SegHandler SegHandler { get; private set; }
+
     protected override void Initialize()
     {
         WADData = new WADData(this, Settings.StartMap);
         Player = new Player(this);
+        ViewRenderer = new ViewRenderer(this);
+        SegHandler = new SegHandler(this);
         BSP = new BSP(this);
         MapRenderer = new MapRenderer(this);
 
@@ -46,8 +52,7 @@ public class DoomEngine : Game
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-        
+        _spriteBatch = new SpriteBatch(GraphicsDevice);        
     }
 
     protected override void Update(GameTime gameTime)
@@ -56,6 +61,7 @@ public class DoomEngine : Game
             Exit();
 
         Player.Update(gameTime);
+        SegHandler.Update(gameTime);
         BSP.Update(gameTime);
 
         base.Update(gameTime);
@@ -67,7 +73,14 @@ public class DoomEngine : Game
 
         _spriteBatch.Begin();
 
-        MapRenderer.Draw(_spriteBatch);
+        if (Settings.UseMapRenderer)
+        {
+            MapRenderer.Draw(_spriteBatch);
+        }
+        else
+        {
+            ViewRenderer.Draw(_spriteBatch);
+        }
 
         _spriteBatch.End();
 

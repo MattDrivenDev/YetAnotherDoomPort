@@ -31,11 +31,6 @@ public class MapRenderer
         _nodes = _wadData.Nodes;
         _bsp = _engine.BSP;
         _font = _engine.Content.Load<SpriteFont>("debug");
-
-        foreach (var vertex in _vertexes)
-        {
-            Console.WriteLine(vertex);
-        }
     }
 
     private Vector2[] MapVertexes(Vector2[] vertexes)
@@ -102,16 +97,11 @@ public class MapRenderer
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        // DrawVertexes(spriteBatch);
-        // DrawNode(spriteBatch, _bsp.RootNodeIndex);
-
-        // DrawScreenResolution(spriteBatch);
-        // DrawMapName(spriteBatch);
-        // DrawLinedefs(spriteBatch);
-        // DrawPlayer(spriteBatch);
-        // DrawSegs(spriteBatch);
-
-        DrawVerticalLines(spriteBatch);
+        DrawScreenResolution(spriteBatch);
+        DrawMapName(spriteBatch);
+        DrawLinedefs(spriteBatch);
+        DrawPlayer(spriteBatch);
+        DrawSegs(spriteBatch);
     }
 
     private void DrawBoundingBox(SpriteBatch spriteBatch, BoundingBox bbox, Color color)
@@ -142,7 +132,6 @@ public class MapRenderer
     {
         var playerPosition = new Vector2(RemapX(_player.Position.X), RemapY(_player.Position.Y));
         spriteBatch.DrawCircle(playerPosition, 3, Color.DarkOrange);
-        // DrawPlayerDirection(spriteBatch, playerPosition);
         DrawPlayerFOV(spriteBatch, playerPosition);
     }
 
@@ -217,22 +206,6 @@ public class MapRenderer
         }
     }
 
-    private void DrawVerticalLines(SpriteBatch spriteBatch)
-    {
-        foreach (var (x1, x2, subSectorId) in _bsp.VerticalLinesToDraw)
-        {
-            var color = GetRandomColor(subSectorId);
-
-            var startX1 = new Vector2(x1, 0);
-            var endX1 = new Vector2(x1, Settings.Height);
-            spriteBatch.DrawLine(startX1, endX1, color, 2);
-
-            var startX2 = new Vector2(x2, 0);
-            var endX2 = new Vector2(x2, Settings.Height);
-            spriteBatch.DrawLine(startX2, endX2, color, 2);
-        }
-    }
-
     private void DrawSegs(SpriteBatch spriteBatch)
     {
         foreach (var (seg, subSectorIndex) in _bsp.SegsToDraw)
@@ -246,14 +219,5 @@ public class MapRenderer
         var startVertex = _vertexes[seg.StartVertexId];
         var endVertex = _vertexes[seg.EndVertexId];
         spriteBatch.DrawLine(startVertex, endVertex, Color.Green, 2);
-    }
-
-    private Color GetRandomColor(int seed)
-    {
-        var random = new Random(seed);
-        var r = random.Next(100, 255);
-        var g = random.Next(100, 255);
-        var b = random.Next(100, 255);
-        return new Color(r, g, b);
     }
 }

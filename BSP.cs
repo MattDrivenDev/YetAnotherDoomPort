@@ -16,6 +16,7 @@ public class BSP
     private readonly SubSector[] _subSectors;
     private readonly Seg[] _segs;
     private readonly ushort _rootNodeIndex;
+    private readonly SegHandler _segHandler;
 
     public BSP(DoomEngine engine)
     {
@@ -26,15 +27,16 @@ public class BSP
         _subSectors = _wadData.SubSectors;
         _segs = _wadData.Segs;
         _rootNodeIndex = (ushort)(_nodes.Length - 1);
+        _segHandler = _engine.SegHandler;
     }
 
     public int RootNodeIndex => _rootNodeIndex;
     public LinkedList<(Seg, int)> SegsToDraw { get; } = new();
-    public LinkedList<(int, int, int)> VerticalLinesToDraw { get; } = new();
+    public bool CanTraverse { get; set; } = true;
 
     public void Update(GameTime gameTime)
     {
-        VerticalLinesToDraw.Clear();
+        CanTraverse = true;
         SegsToDraw.Clear();
         RenderBSPNode(_rootNodeIndex);
     }
@@ -118,7 +120,7 @@ public class BSP
             {
                 var (x1, x2, angle) = drawSegResult.Value;
                 SegsToDraw.AddLast((seg, subSectorId));
-                VerticalLinesToDraw.AddLast((x1, x2, subSectorId));
+                _segHandler.HandleSeg(seg, x1, x2, angle, subSectorId);
             }
         }
     }
@@ -216,6 +218,11 @@ public class BSP
 
     private void RenderBSPNode(ushort nodeId)
     {
+        if (!CanTraverse)
+        {
+            return;
+        }
+
         if (nodeId >= SubSectorIdentifier)
         {
             var subSectorId = nodeId;
