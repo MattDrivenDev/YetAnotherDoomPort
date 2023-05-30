@@ -102,14 +102,14 @@ public class MapRenderer
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        // DrawScreenResolution(spriteBatch);
-        // DrawMapName(spriteBatch);
+        DrawScreenResolution(spriteBatch);
+        DrawMapName(spriteBatch);
         // DrawVertexes(spriteBatch);
-        // DrawLinedefs(spriteBatch);
-        // DrawPlayer(spriteBatch);
+        DrawLinedefs(spriteBatch);
+        DrawPlayer(spriteBatch);
         // DrawNode(spriteBatch, _bsp.RootNodeIndex);
-        // DrawSegs(spriteBatch);
-        DrawVerticalLines(spriteBatch);
+        DrawSegs(spriteBatch);
+        // DrawVerticalLines(spriteBatch);
     }
 
     private void DrawBoundingBox(SpriteBatch spriteBatch, Node.BBox bbox, Color color)
@@ -146,8 +146,9 @@ public class MapRenderer
 
     private void DrawPlayerDirection(SpriteBatch spriteBatch, Vector2 playerPosition)
     {
-        var x = RemapX(_player.Position.X + (MathF.Cos(_player.Angle) * Settings.Height));
-        var y = RemapY(_player.Position.Y + (MathF.Sin(_player.Angle) * Settings.Height));
+        var radians = MathHelper.ToRadians(_player.Angle);
+        var x = RemapX(_player.Position.X + (MathF.Cos(radians) * Settings.Height));
+        var y = RemapY(_player.Position.Y + (MathF.Sin(radians) * Settings.Height));
         var direction = new Vector2(x, y);
         spriteBatch.DrawLine(playerPosition, direction, Color.DarkOrange, 2);
     }
@@ -155,11 +156,12 @@ public class MapRenderer
     private void DrawPlayerFOV(SpriteBatch spriteBatch, Vector2 remappedPosition)
     {
         var unmappedPosition = _player.Position;
-        var angle = _player.Angle;
-        var sin_a = MathF.Sin(angle + MathHelper.ToRadians(Settings.HalfFOV));
-        var cos_a = MathF.Cos(angle + MathHelper.ToRadians(Settings.HalfFOV));
-        var sin_b = MathF.Sin(angle - MathHelper.ToRadians(Settings.HalfFOV));
-        var cos_b = MathF.Cos(angle - MathHelper.ToRadians(Settings.HalfFOV));
+        var radians = MathHelper.ToRadians(_player.Angle);
+        var halfFovRadians = MathHelper.ToRadians(Settings.HalfFOV);
+        var sin_a = MathF.Sin(radians + halfFovRadians);
+        var cos_a = MathF.Cos(radians + halfFovRadians);
+        var sin_b = MathF.Sin(radians - halfFovRadians);
+        var cos_b = MathF.Cos(radians - halfFovRadians);
         var length = Settings.Height;
 
         var fov_a = new Vector2(RemapX(unmappedPosition.X + (cos_a * length)), RemapY(unmappedPosition.Y + (sin_a * length)));

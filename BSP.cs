@@ -67,7 +67,7 @@ public class BSP
 
         var angle1a = angle1;
 
-        var playerAngle = MathHelper.ToDegrees(_player.Angle);
+        var playerAngle = _player.Angle;
         angle1 -= playerAngle;
         angle2 -= playerAngle;
         var span1 = NormalizeAngleInDegrees(angle1 + Settings.HalfFOV);
@@ -189,7 +189,7 @@ public class BSP
             var angle1 = PointToAngle(v1);
             var angle2 = PointToAngle(v2);
             var span = NormalizeAngleInDegrees(angle1 - angle2);
-            angle1 -= MathHelper.ToDegrees(_player.Angle);
+            angle1 -= _player.Angle;
             var span1 = NormalizeAngleInDegrees(angle1 + Settings.HalfFOV);
 
             if (span1 > Settings.FOV)

@@ -18,7 +18,7 @@ public class Player
         _engine = engine;
         _thing = _engine.WADData.Things[ThingIndex];
         _position = _thing.Position;
-        _angle = MathHelper.ToRadians(_thing.Angle);
+        _angle = _thing.Angle;
     }
 
     public Vector2 Position => _position;
@@ -33,9 +33,10 @@ public class Player
 
     private void Move(GameTime gameTime, KeyboardState keyboardState)
     {
+        var radians = MathHelper.ToRadians(_angle);
         var movementSpeed = Settings.PlayerSpeed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-        var sin = MathF.Sin(_angle);
-        var cos = MathF.Cos(_angle);        
+        var sin = MathF.Sin(radians);
+        var cos = MathF.Cos(radians);        
         sin *= movementSpeed;
         cos *= movementSpeed;
         var delta = Vector2.Zero;
