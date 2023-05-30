@@ -257,4 +257,26 @@ public class BSP
         var deltaY = _player.Position.Y - node.PartitionY;
         return (deltaX * node.DeltaPartitionY) - (deltaY * node.DeltaPartitionX) <= 0;
     }
+
+    public short GetSubSectorHeight()
+    {
+        var subSectorId = _rootNodeIndex;
+        while (subSectorId < SubSectorIdentifier)
+        {
+            var node = _nodes[subSectorId];
+            var onBackSide = IsPlayerOnBackSide(node);
+            if (onBackSide)
+            {
+                subSectorId = node.BackChild;
+            }
+            else
+            {
+                subSectorId = node.FrontChild;
+            }
+        }
+
+        var subSector = _subSectors[subSectorId - SubSectorIdentifier];
+        var seg = _segs[subSector.FirstSeg];
+        return seg.FrontSector.FloorHeight;
+    }
 }

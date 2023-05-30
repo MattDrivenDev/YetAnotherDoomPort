@@ -90,7 +90,7 @@ public class SegHandler
         }
 
         // Different light levels and textures
-        ClipSolidWalls(x1, x2, colorSeed);
+        ClipPortalWalls(x1, x2, colorSeed);
     }
 
     private void ClipSolidWalls(int x1, int x2, int colorSeed = 0)
@@ -366,35 +366,119 @@ public class SegHandler
                 var drawUpperWallY1 = wallY1 - 1;
                 var drawUpperWallY2 = portalY1;
 
+                if (drawCeiling)
+                {
+                    var cy1 = UpperClip[i] + 1;
+                    var cy2 = Math.Min(drawWallY1 - 1, LowerClip[i] - 1);
+                    _renderer.VertsToDraw.AddLast(
+                        new Vert
+                        {
+                            X = i,
+                            YTop = cy1,
+                            YBottom = (int)cy2,
+                            Texture = ceilingTexture,
+                            LightLevel = lightLevel
+                        });
+                }
+
+                var wy1 = Math.Max(drawUpperWallY1, UpperClip[i] + 1);
+                var wy2 = Math.Min(drawUpperWallY2, LowerClip[i] - 1);
                 _renderer.VertsToDraw.AddLast(
                     new Vert
                     {
                         X = i,
-                        YTop = (int)drawUpperWallY1,
-                        YBottom = (int)drawUpperWallY2,
+                        YTop = (int)wy1,
+                        YBottom = (int)wy2,
                         Texture = upperWallTexture,
                         LightLevel = lightLevel
                     });     
 
+                if (UpperClip[i] < wy2)
+                {
+                    UpperClip[i] = (int)wy2;
+                }
+
                 portalY1 += portalY1Step;
+            }
+
+            if (drawCeiling)
+            {
+                var cy1 = UpperClip[i] + 1;
+                var cy2 = Math.Min(drawWallY1 - 1, LowerClip[i] - 1);
+                    _renderer.VertsToDraw.AddLast(
+                        new Vert
+                        {
+                            X = i,
+                            YTop = cy1,
+                            YBottom = (int)cy2,
+                            Texture = ceilingTexture,
+                            LightLevel = lightLevel
+                        });
+                
+                if (UpperClip[i] < cy2)
+                {
+                    UpperClip[i] = (int)cy2;
+                }
             }
 
             if (drawLowerWall)
             {
+                if (drawFloor)
+                {
+                    var fy1 = Math.Max(drawWallY2 + 1, UpperClip[i] + 1);
+                    var fy2 = LowerClip[i] - 1;
+                    _renderer.VertsToDraw.AddLast(
+                        new Vert
+                        {
+                            X = i,
+                            YTop = (int)fy1,
+                            YBottom = fy2,
+                            Texture = floorTexture,
+                            LightLevel = lightLevel
+                        });
+                }
+
                 var drawLowerWallY1 = portalY2 - 1;
                 var drawLowerWallY2 = wallY2;
 
+                var wy1 = Math.Max(drawLowerWallY1, UpperClip[i] + 1);
+                var wy2 = Math.Min(drawLowerWallY2, LowerClip[i] - 1);
                 _renderer.VertsToDraw.AddLast(
                     new Vert
                     {
                         X = i,
-                        YTop = (int)drawLowerWallY1,
-                        YBottom = (int)drawLowerWallY2,
+                        YTop = (int)wy1,
+                        YBottom = (int)wy2,
                         Texture = lowerWallTexture,
                         LightLevel = lightLevel
                     });     
 
+                if (LowerClip[i] > wy1)
+                {
+                    LowerClip[i] = (int)wy1;
+                }
+
                 portalY2 += portalY2Step;
+            }
+
+            if (drawFloor)
+            {
+                var fy1 = Math.Max(drawWallY2 + 1, UpperClip[i] + 1);
+                var fy2 = LowerClip[i] - 1;
+                _renderer.VertsToDraw.AddLast(
+                    new Vert
+                    {
+                        X = i,
+                        YTop = (int)fy1,
+                        YBottom = fy2,
+                        Texture = floorTexture,
+                        LightLevel = lightLevel
+                    });
+
+                if (LowerClip[i] > drawWallY2 + 1)
+                {
+                    LowerClip[i] = (int)fy1;
+                }
             }
 
             wallY1 += wallY1Step;

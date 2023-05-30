@@ -23,7 +23,7 @@ public class Player
 
     public Vector2 Position => _position;
     public float Angle => _angle;
-    public int Height => Settings.PlayerHeight;
+    public int Height => _engine.BSP.GetSubSectorHeight() + Settings.PlayerHeight;
 
     public void Update(GameTime gameTime)
     {
