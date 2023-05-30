@@ -48,21 +48,40 @@ public class WADReader : IDisposable
         return directory;
     }
 
-    public Thing ReadThing(int offset)
-    {
-        var x = ReadShort(offset);
-        var y = ReadShort(offset + 2);
+    public Sidedef ReadSidedef(int offset) =>
+        new Sidedef
+        {
+            XOffset = ReadShort(offset),
+            YOffset = ReadShort(offset + 2),
+            UpperTexture = ReadString(offset + 4, 8),
+            LowerTexture = ReadString(offset + 12, 8),
+            MiddleTexture = ReadString(offset + 20, 8),
+            SectorId = ReadUShort(offset + 28)
+        };
 
-        return new Thing(
-            position: new Vector2(x, y), 
-            angle: ReadUShort(offset + 4), 
-            type: ReadUShort(offset + 6), 
-            flags: ReadUShort(offset + 8));
-    }
+    public Sector ReadSector(int offset) =>
+        new Sector
+        {
+            FloorHeight = ReadShort(offset),
+            CeilingHeight = ReadShort(offset + 2),
+            FloorTexture = ReadString(offset + 4, 8),
+            CeilingTexture = ReadString(offset + 12, 8),
+            LightLevel = ReadUShort(offset + 20),
+            Type = ReadUShort(offset + 22),
+            Tag = ReadUShort(offset + 24)
+        };
 
-    public Seg ReadSeg(int offset)
-    {
-        return new Seg
+    public Thing ReadThing(int offset) =>
+        new Thing
+        {
+            Position = new Vector2(ReadShort(offset), ReadShort(offset + 2)),
+            Angle = ReadUShort(offset + 4),
+            Type = ReadUShort(offset + 6),
+            Flags = ReadUShort(offset + 8)
+        };
+
+    public Seg ReadSeg(int offset) =>
+        new Seg
         {
             StartVertexId = ReadShort(offset),
             EndVertexId = ReadShort(offset + 2),
@@ -71,31 +90,29 @@ public class WADReader : IDisposable
             Direction = ReadShort(offset + 8),
             Offset = ReadShort(offset + 10)
         };
-    }
 
-    public SubSector ReadSubSector(int offset)
-    {
-        var segCount = ReadShort(offset);
-        var firstSeg = ReadShort(offset + 2);
-        return new SubSector(segCount, firstSeg);
-    }
+    public SubSector ReadSubSector(int offset) =>
+        new SubSector
+        {
+            SegCount = ReadShort(offset),
+            FirstSeg = ReadShort(offset + 2)
+        };
 
-    public Node ReadNode(int offset)
-    {
-        return new Node
+    public Node ReadNode(int offset) =>
+        new Node
         {
             PartitionX = ReadShort(offset),
             PartitionY = ReadShort(offset + 2),
             DeltaPartitionX = ReadShort(offset + 4),
             DeltaPartitionY = ReadShort(offset + 6),
-            FrontBoundingBox = new Node.BBox
+            FrontBoundingBox = new BoundingBox
             {
                 Top = ReadShort(offset + 8),
                 Bottom = ReadShort(offset + 10),
                 Left = ReadShort(offset + 12),
                 Right = ReadShort(offset + 14)
             },
-            BackBoundingBox = new Node.BBox
+            BackBoundingBox = new BoundingBox
             {
                 Top = ReadShort(offset + 16),
                 Bottom = ReadShort(offset + 18),
@@ -105,28 +122,21 @@ public class WADReader : IDisposable
             FrontChild = ReadUShort(offset + 24),
             BackChild = ReadUShort(offset + 26)
         };
-    }
 
-    public Linedef ReadLinedef(int offset)
-    {
-        return new Linedef
+    public Linedef ReadLinedef(int offset) =>
+        new Linedef
         {
-            StartVertex = ReadShort(offset),
-            EndVertex = ReadShort(offset + 2),
-            Flags = ReadShort(offset + 4),
-            LineType = ReadShort(offset + 6),
-            SectorTag = ReadShort(offset + 8),
-            FrontSidedef = ReadShort(offset + 10),
-            BackSidedef = ReadShort(offset + 12)
+            StartVertexId = ReadUShort(offset),
+            EndVertexId = ReadUShort(offset + 2),
+            Flags = ReadUShort(offset + 4),
+            LineType = ReadUShort(offset + 6),
+            SectorTag = ReadUShort(offset + 8),
+            FrontSidedefId = ReadUShort(offset + 10),
+            BackSidedefId = ReadUShort(offset + 12)
         };
-    }
 
-    public Vector2 ReadVertex(int offset)
-    {
-        var x = ReadShort(offset);
-        var y = ReadShort(offset + 2);
-        return new Vector2(x, y);
-    }
+    public Vector2 ReadVertex(int offset) =>
+        new Vector2(ReadShort(offset), ReadShort(offset + 2));
 
     public byte ReadByte(int offset)
     {

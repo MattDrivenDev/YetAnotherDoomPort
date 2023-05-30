@@ -102,17 +102,19 @@ public class MapRenderer
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        DrawScreenResolution(spriteBatch);
-        DrawMapName(spriteBatch);
         // DrawVertexes(spriteBatch);
-        DrawLinedefs(spriteBatch);
-        DrawPlayer(spriteBatch);
         // DrawNode(spriteBatch, _bsp.RootNodeIndex);
-        DrawSegs(spriteBatch);
-        // DrawVerticalLines(spriteBatch);
+
+        // DrawScreenResolution(spriteBatch);
+        // DrawMapName(spriteBatch);
+        // DrawLinedefs(spriteBatch);
+        // DrawPlayer(spriteBatch);
+        // DrawSegs(spriteBatch);
+
+        DrawVerticalLines(spriteBatch);
     }
 
-    private void DrawBoundingBox(SpriteBatch spriteBatch, Node.BBox bbox, Color color)
+    private void DrawBoundingBox(SpriteBatch spriteBatch, BoundingBox bbox, Color color)
     {
         var topLeft = new Vector2(RemapX(bbox.Left), RemapY(bbox.Top));
         var bottomRight = new Vector2(RemapX(bbox.Right), RemapY(bbox.Bottom));
@@ -209,8 +211,8 @@ public class MapRenderer
         for (var i = 0; i < _linedefs.Length; i++)
         {
             var linedef = _linedefs[i];
-            var startVertex = _vertexes[linedef.StartVertex];
-            var endVertex = _vertexes[linedef.EndVertex];
+            var startVertex = _vertexes[linedef.StartVertexId];
+            var endVertex = _vertexes[linedef.EndVertexId];
             spriteBatch.DrawLine(startVertex, endVertex, Color.DarkRed, 2);
         }
     }

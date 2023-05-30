@@ -21,13 +21,12 @@ public class WADData
         SubSectors = GetLumpData(_reader.ReadSubSector, MapIndex + LumpIndices.SSECTORS, 4, 0);
         Segs = GetLumpData(_reader.ReadSeg, MapIndex + LumpIndices.SEGS, 12, 0);
         Things = GetLumpData(_reader.ReadThing, MapIndex + LumpIndices.THINGS, 10, 0);
-
-        foreach (var vertex in Vertexes)
-        {
-            Console.WriteLine(vertex);
-        }
+        Sidedefs = GetLumpData(_reader.ReadSidedef, MapIndex + LumpIndices.SIDEDEFS, 30, 0);
+        Sectors = GetLumpData(_reader.ReadSector, MapIndex + LumpIndices.SECTORS, 26, 0);
 
         _reader.Close();
+
+        UpdateData();
     }
 
     public string MapName { get; init; }
@@ -38,6 +37,69 @@ public class WADData
     public SubSector[] SubSectors { get; init; }
     public Seg[] Segs { get; init; }
     public Thing[] Things { get; init; }
+    public Sidedef[] Sidedefs { get; init; }
+    public Sector[] Sectors { get; init; }
+
+    private void UpdateData()
+    {
+        UpdateLinedefs();
+        UpdateSidedefs();
+        UpdateSegs();
+    }
+
+    private void UpdateLinedefs()
+    {
+        foreach (var line in Linedefs)
+        {
+            line.FrontSidedef = Sidedefs[line.FrontSidedefId];
+
+            // 65535 or 0xFFFF represents undefined sidedef
+            line.BackSidedef = line.BackSidedefId == ushort.MaxValue 
+                ? null
+                : Sidedefs[line.BackSidedefId];
+        }
+    }
+
+    private void UpdateSidedefs()
+    {
+        foreach (var side in Sidedefs)
+        {
+            side.Sector = Sectors[side.SectorId];
+        }
+    } 
+
+    private void UpdateSegs()
+    {
+        foreach (var seg in Segs)
+        {
+            seg.StartVertex = Vertexes[seg.StartVertexId];
+            seg.EndVertex = Vertexes[seg.EndVertexId];
+            seg.Linedef = Linedefs[seg.LinedefId];
+            
+            // 0 = front is frontside
+            // 1 = back is frontside
+            Sector frontSector;
+            Sector backSector;
+            if (seg.Direction == 0)
+            {
+                frontSector = seg.Linedef.FrontSidedef.Sector;
+                backSector = seg.Linedef.BackSidedef?.Sector;
+            }
+            else
+            {
+                frontSector = seg.Linedef.BackSidedef.Sector;
+                backSector = seg.Linedef.FrontSidedef?.Sector;
+            }
+
+            seg.FrontSector = frontSector;
+            seg.BackSector = (LindefFlags.TwoSided & seg.Linedef.Flags) > 0
+                ? backSector
+                : null;
+
+            var degs = FromBAMToDegrees(seg.Angle);
+            seg.Angle = seg.Angle < 0 ? (short)(360 + degs) : (short)degs;
+        }
+    }
 
     public static float FromBAMToRadians(short bamAngle)
     {

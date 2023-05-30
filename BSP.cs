@@ -34,6 +34,7 @@ public class BSP
 
     public void Update(GameTime gameTime)
     {
+        VerticalLinesToDraw.Clear();
         SegsToDraw.Clear();
         RenderBSPNode(_rootNodeIndex);
     }
@@ -129,7 +130,7 @@ public class BSP
         return angle < 0 ? angle + maxDegrees : angle;
     }
 
-    private bool CheckBBox(Node.BBox bBox)
+    private bool CheckBBox(BoundingBox bBox)
     {
         var a = new Vector2(bBox.Left, bBox.Bottom);
         var b = new Vector2(bBox.Left, bBox.Top);
