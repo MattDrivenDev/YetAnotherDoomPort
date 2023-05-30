@@ -56,10 +56,10 @@ public class BSP
         return (int)x;
     }
 
-    private (int, int, float)? CanAddSegToFOV(Vector2 a, Vector2 b)
+    private (int, int, float)? CanAddSegToFOV(Vector2 vertex1, Vector2 vertex2)
     {
-        var angle1 = PointToAngle(a);
-        var angle2 = PointToAngle(b);
+        var angle1 = PointToAngle(vertex1);
+        var angle2 = PointToAngle(vertex2);
         var span = NormalizeAngleInDegrees(angle1 - angle2);
         
         // Backface culling
@@ -68,14 +68,12 @@ public class BSP
             return null;
         }
 
-        var angle1a = angle1;
+        var rwAngle1 = angle1;
 
-        var playerAngle = _player.Angle;
-        angle1 -= playerAngle;
-        angle2 -= playerAngle;
+        angle1 -= _player.Angle;
+        angle2 -= _player.Angle;
+
         var span1 = NormalizeAngleInDegrees(angle1 + Settings.HalfFOV);
-        var span2 = NormalizeAngleInDegrees(Settings.HalfFOV - angle2);
-
         if (span1 > Settings.FOV)
         {
             if (span1 >= span + Settings.FOV)
@@ -87,6 +85,7 @@ public class BSP
             angle1 = Settings.HalfFOV;
         }
 
+        var span2 = NormalizeAngleInDegrees(Settings.HalfFOV - angle2);
         if (span2 > Settings.FOV)
         {
             if (span2 >= span + Settings.FOV)
@@ -101,7 +100,7 @@ public class BSP
         var x1 = AngleToX(angle1);
         var x2 = AngleToX(angle2);
 
-        return (x1, x2, angle1a);
+        return (x1, x2, rwAngle1);
     }
 
     private void RenderSubSector(int subSectorId)
@@ -112,10 +111,7 @@ public class BSP
         for (var i = 0; i < segCount; i++)
         {
             var seg = _segs[subSector.FirstSeg  + i];
-            var a = _wadData.Vertexes[seg.StartVertexId];
-            var b = _wadData.Vertexes[seg.EndVertexId];
-
-            var drawSegResult = CanAddSegToFOV(a, b);
+            var drawSegResult = CanAddSegToFOV(seg.StartVertex, seg.EndVertex);
             if (drawSegResult.HasValue)
             {
                 var (x1, x2, angle) = drawSegResult.Value;
@@ -125,12 +121,7 @@ public class BSP
         }
     }
 
-    private float NormalizeAngleInDegrees(float angle)
-    {
-        var maxDegrees = MathHelper.ToDegrees(MathHelper.TwoPi);
-        angle %= maxDegrees;        
-        return angle < 0 ? angle + maxDegrees : angle;
-    }
+    private float NormalizeAngleInDegrees(float angle) => angle % 360;
 
     private bool CheckBBox(BoundingBox bBox)
     {

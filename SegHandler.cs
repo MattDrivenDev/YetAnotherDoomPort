@@ -42,8 +42,8 @@ public class SegHandler
 
     public void Update(GameTime gameTime)
     {
-        InitializeScreenRange();
         InitializeFloorAndCeilingClipHeights();
+        InitializeScreenRange();
     }
 
     public void HandleSeg(Seg seg, int x1, int x2, float rwAngle1, int colorSeed)
@@ -93,7 +93,7 @@ public class SegHandler
         ClipPortalWalls(x1, x2, colorSeed);
     }
 
-    private void ClipSolidWalls(int x1, int x2, int colorSeed = 0)
+    private void ClipSolidWalls(int xStart, int xEnd, int colorSeed = 0)
     {
         // If the horizontal range of the screen has
         // been exhausted, then we can return. In fact,
@@ -106,15 +106,15 @@ public class SegHandler
 
         // Something will have gone wrong if we have
         // this condition as true.
-        if (x1 >= x2)
+        if (xStart >= xEnd)
         {
             return;
         }
 
-        var wall = new int[x2 - x1];
+        var wall = new int[xEnd - xStart];
         for (var i = 0; i < wall.Length; i++)
         {
-            wall[i] = x1 + i;
+            wall[i] = xStart + i;
         }
 
         var intersection = ScreenRange.Intersect(wall).ToArray();
@@ -129,33 +129,43 @@ public class SegHandler
         // we can just draw the entire wall.
         if (intersection.Length == wall.Length)
         {            
-            DrawSolidWallRange(x1, x2, colorSeed);
+            DrawSolidWallRange(xStart, xEnd -1, colorSeed);
         }
         else
         {
             var sortedIntersection = intersection.OrderBy(i => i).ToArray();
-            var i1 = sortedIntersection.First();
-            var i2 = sortedIntersection.Last() + 1;
-            DrawSolidWallRange(i1, i2, colorSeed);
+            var x = sortedIntersection.First();
+            var x2 = sortedIntersection.Last();
+            for (var i = 0; i < sortedIntersection.Length - 1; i++)
+            {
+                var x1 = sortedIntersection[i];
+                x2 = sortedIntersection[i + 1];
+                if (x2 - x1 > 1)
+                {
+                    DrawSolidWallRange(x, x1, colorSeed);
+                    x = x2;;
+                }
+            }            
+            DrawSolidWallRange(x, x2, colorSeed);
         }
 
         // Remove the intersection from the available screen range.
         ScreenRange = ScreenRange.Except(intersection).ToArray();
     }
 
-    private void ClipPortalWalls(int x1, int x2, int colorSeed = 0)
+    private void ClipPortalWalls(int xStart, int xEnd, int colorSeed = 0)
     {
         // Something will have gone wrong if we have
         // this condition as true.
-        if (x1 >= x2)
+        if (xStart >= xEnd)
         {
             return;
         }
 
-        var wall = new int[x2 - x1];
+        var wall = new int[xEnd - xStart];
         for (var i = 0; i < wall.Length; i++)
         {
-            wall[i] = x1 + i;
+            wall[i] = xStart + i;
         }
 
         var intersection = ScreenRange.Intersect(wall).ToArray();
@@ -170,14 +180,23 @@ public class SegHandler
         // we can just draw the entire wall.
         if (intersection.Length == wall.Length)
         {            
-            DrawPortalWallRange(x1, x2, colorSeed);
+            DrawPortalWallRange(xStart, xEnd - 1, colorSeed);
         }
         else
         {
             var sortedIntersection = intersection.OrderBy(i => i).ToArray();
-            var i1 = sortedIntersection.First();
-            var i2 = sortedIntersection.Last() + 1;
-            DrawPortalWallRange(i1, i2, colorSeed);
+            var x = sortedIntersection.First();
+            for (var i = 0; i < sortedIntersection.Length - 1; i++)
+            {
+                var x1 = sortedIntersection[i];
+                var x2 = sortedIntersection[i + 1];
+                if (x2 - x1 > 1)
+                {
+                    DrawPortalWallRange(x, x1, colorSeed);
+                    x = x2;;
+                }
+            }
+            DrawPortalWallRange(x, sortedIntersection.Last(), colorSeed);
         }
     }
 
@@ -210,7 +229,7 @@ public class SegHandler
         var wallY2 = Settings.HalfHeight - worldFrontZ2 * rwScale1;
         var wallY2Step = -rwScaleStep * worldFrontZ2;
 
-        for (var i = x1; i < x2; i++)
+        for (var i = x1; i < x2 + 1; i++)
         {                                   
             var drawWallY1 = wallY1 - 1;
             var drawWallY2 = wallY2;
@@ -326,37 +345,31 @@ public class SegHandler
 
         var portalY1 = 0f;
         var portalY1Step = 0f;
-        if (drawUpperWall)
+        if (worldBackZ1 > worldFrontZ2)
         {
-            if (worldBackZ1 > worldFrontZ2)
-            {
-                portalY1 = Settings.HalfHeight - worldBackZ1 * rwScale1;
-                portalY1Step = -rwScaleStep * worldBackZ1;
-            }
-            else
-            {
-                portalY1 = wallY2;
-                portalY1Step = wallY2Step;
-            }
+            portalY1 = Settings.HalfHeight - worldBackZ1 * rwScale1;
+            portalY1Step = -rwScaleStep * worldBackZ1;
+        }
+        else
+        {
+            portalY1 = wallY2;
+            portalY1Step = wallY2Step;
         }
 
         var portalY2 = 0f;
         var portalY2Step = 0f;
-        if (drawLowerWall)
+        if (worldBackZ2 < worldFrontZ1)
         {
-            if (worldBackZ2 < worldFrontZ1)
-            {
-                portalY2 = Settings.HalfHeight - worldBackZ2 * rwScale1;
-                portalY2Step = -rwScaleStep * worldBackZ2;
-            }
-            else
-            {
-                portalY2 = wallY1;
-                portalY2Step = wallY1Step;
-            }
+            portalY2 = Settings.HalfHeight - worldBackZ2 * rwScale1;
+            portalY2Step = -rwScaleStep * worldBackZ2;
+        }
+        else
+        {
+            portalY2 = wallY1;
+            portalY2Step = wallY1Step;
         }
 
-        for (var i = x1; i < x2; i++)
+        for (var i = x1; i < x2 + 1; i++)
         {                                   
             var drawWallY1 = wallY1 - 1;
             var drawWallY2 = wallY2;
@@ -369,33 +382,33 @@ public class SegHandler
                 if (drawCeiling)
                 {
                     var cy1 = UpperClip[i] + 1;
-                    var cy2 = Math.Min(drawWallY1 - 1, LowerClip[i] - 1);
+                    var cy2 = (int)Math.Min(drawWallY1 - 1, LowerClip[i] - 1);
                     _renderer.VertsToDraw.AddLast(
                         new Vert
                         {
                             X = i,
                             YTop = cy1,
-                            YBottom = (int)cy2,
+                            YBottom = cy2,
                             Texture = ceilingTexture,
                             LightLevel = lightLevel
                         });
                 }
 
-                var wy1 = Math.Max(drawUpperWallY1, UpperClip[i] + 1);
-                var wy2 = Math.Min(drawUpperWallY2, LowerClip[i] - 1);
+                var wy1 = (int)Math.Max(drawUpperWallY1, UpperClip[i] + 1);
+                var wy2 = (int)Math.Min(drawUpperWallY2, LowerClip[i] - 1);
                 _renderer.VertsToDraw.AddLast(
                     new Vert
                     {
                         X = i,
-                        YTop = (int)wy1,
-                        YBottom = (int)wy2,
+                        YTop = wy1,
+                        YBottom = wy2,
                         Texture = upperWallTexture,
                         LightLevel = lightLevel
                     });     
 
                 if (UpperClip[i] < wy2)
                 {
-                    UpperClip[i] = (int)wy2;
+                    UpperClip[i] = wy2;
                 }
 
                 portalY1 += portalY1Step;
@@ -404,20 +417,20 @@ public class SegHandler
             if (drawCeiling)
             {
                 var cy1 = UpperClip[i] + 1;
-                var cy2 = Math.Min(drawWallY1 - 1, LowerClip[i] - 1);
-                    _renderer.VertsToDraw.AddLast(
-                        new Vert
-                        {
-                            X = i,
-                            YTop = cy1,
-                            YBottom = (int)cy2,
-                            Texture = ceilingTexture,
-                            LightLevel = lightLevel
-                        });
+                var cy2 = (int)Math.Min(drawWallY1 - 1, LowerClip[i] - 1);
+                _renderer.VertsToDraw.AddLast(
+                    new Vert
+                    {
+                        X = i,
+                        YTop = cy1,
+                        YBottom = cy2,
+                        Texture = ceilingTexture,
+                        LightLevel = lightLevel
+                    });
                 
                 if (UpperClip[i] < cy2)
                 {
-                    UpperClip[i] = (int)cy2;
+                    UpperClip[i] = cy2;
                 }
             }
 
@@ -425,13 +438,13 @@ public class SegHandler
             {
                 if (drawFloor)
                 {
-                    var fy1 = Math.Max(drawWallY2 + 1, UpperClip[i] + 1);
+                    var fy1 = (int)Math.Max(drawWallY2 + 1, UpperClip[i] + 1);
                     var fy2 = LowerClip[i] - 1;
                     _renderer.VertsToDraw.AddLast(
                         new Vert
                         {
                             X = i,
-                            YTop = (int)fy1,
+                            YTop = fy1,
                             YBottom = fy2,
                             Texture = floorTexture,
                             LightLevel = lightLevel
@@ -441,21 +454,21 @@ public class SegHandler
                 var drawLowerWallY1 = portalY2 - 1;
                 var drawLowerWallY2 = wallY2;
 
-                var wy1 = Math.Max(drawLowerWallY1, UpperClip[i] + 1);
-                var wy2 = Math.Min(drawLowerWallY2, LowerClip[i] - 1);
+                var wy1 = (int)Math.Max(drawLowerWallY1, UpperClip[i] + 1);
+                var wy2 = (int)Math.Min(drawLowerWallY2, LowerClip[i] - 1);
                 _renderer.VertsToDraw.AddLast(
                     new Vert
                     {
                         X = i,
-                        YTop = (int)wy1,
-                        YBottom = (int)wy2,
+                        YTop = wy1,
+                        YBottom = wy2,
                         Texture = lowerWallTexture,
                         LightLevel = lightLevel
                     });     
 
                 if (LowerClip[i] > wy1)
                 {
-                    LowerClip[i] = (int)wy1;
+                    LowerClip[i] = wy1;
                 }
 
                 portalY2 += portalY2Step;
@@ -463,13 +476,13 @@ public class SegHandler
 
             if (drawFloor)
             {
-                var fy1 = Math.Max(drawWallY2 + 1, UpperClip[i] + 1);
+                var fy1 = (int)Math.Max(drawWallY2 + 1, UpperClip[i] + 1);
                 var fy2 = LowerClip[i] - 1;
                 _renderer.VertsToDraw.AddLast(
                     new Vert
                     {
                         X = i,
-                        YTop = (int)fy1,
+                        YTop = fy1,
                         YBottom = fy2,
                         Texture = floorTexture,
                         LightLevel = lightLevel
@@ -477,7 +490,7 @@ public class SegHandler
 
                 if (LowerClip[i] > drawWallY2 + 1)
                 {
-                    LowerClip[i] = (int)fy1;
+                    LowerClip[i] = fy1;
                 }
             }
 

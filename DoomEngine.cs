@@ -69,8 +69,6 @@ public class DoomEngine : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
-
         _spriteBatch.Begin();
 
         if (Settings.UseMapRenderer)
