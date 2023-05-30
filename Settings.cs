@@ -18,6 +18,7 @@ public static class Settings
     public static int HalfFOV = FOV / 2;
     public static float PlayerSpeed = 0.3f;
     public static float PlayerRotationSpeed = 0.12f;
+    public static int PlayerHeight = 41;
     public static float ScreenDistance = HalfWidth / MathF.Tan(MathHelper.ToRadians(HalfFOV));
     public static bool UseMapRenderer = false;
 } 
