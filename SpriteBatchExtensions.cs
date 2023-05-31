@@ -22,7 +22,8 @@ public static class SpriteBatchExtensions
         Vector2 start, 
         Vector2 end, 
         Color color, 
-        Single thickness)
+        Single thickness,
+        float layerDepth = 0)
     {
         EnsurePixel(spriteBatch);
 
@@ -39,7 +40,7 @@ public static class SpriteBatchExtensions
             Vector2.Zero, 
             lineScale, 
             SpriteEffects.None, 
-            0);
+            layerDepth);
     }
 
     public static void DrawCircle(

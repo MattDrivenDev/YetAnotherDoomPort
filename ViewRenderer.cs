@@ -59,6 +59,9 @@ public class ViewRenderer
             var vert = VertsToDraw.First.Value;
             VertsToDraw.RemoveFirst();
 
+            if (vert.X < 0 || vert.X > Settings.Width)
+                continue;
+
             var color = GetColor(vert.Texture, vert.LightLevel);
 
             var startX1 = new Vector2(vert.X, vert.YTop);
@@ -77,9 +80,9 @@ public class ViewRenderer
             var l = lightLevel / 255f;
             var random = new Random(t);
 
-            var r = (int)(random.Next(100, 255) * l);
-            var g = (int)(random.Next(100, 255) * l);
-            var b = (int)(random.Next(100, 255) * l);
+            var r = (int)(random.Next(50, 255) * l);
+            var g = (int)(random.Next(50, 255) * l);
+            var b = (int)(random.Next(50, 255) * l);
             var color = new Color(r, g, b);
 
             _colors.Add(key, color);

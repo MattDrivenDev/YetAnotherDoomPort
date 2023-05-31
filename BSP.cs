@@ -56,10 +56,14 @@ public class BSP
         return (int)x;
     }
 
-    private (int, int, float)? CanAddSegToFOV(Vector2 vertex1, Vector2 vertex2)
+    private (int, int, float)? CanAddSegToFOV(Seg seg)
     {
-        var angle1 = PointToAngle(vertex1);
-        var angle2 = PointToAngle(vertex2);
+        var id = seg.LinedefId;        
+        var vertex1 = seg.StartVertex;
+        var vertex2 = seg.EndVertex;
+
+        var angle1 = NormalizeAngleInDegrees(PointToAngle(vertex1));
+        var angle2 = NormalizeAngleInDegrees(PointToAngle(vertex2));
         var span = NormalizeAngleInDegrees(angle1 - angle2);
         
         // Backface culling
@@ -111,7 +115,7 @@ public class BSP
         for (var i = 0; i < segCount; i++)
         {
             var seg = _segs[subSector.FirstSeg  + i];
-            var drawSegResult = CanAddSegToFOV(seg.StartVertex, seg.EndVertex);
+            var drawSegResult = CanAddSegToFOV(seg);
             if (drawSegResult.HasValue)
             {
                 var (x1, x2, angle) = drawSegResult.Value;
@@ -121,7 +125,19 @@ public class BSP
         }
     }
 
-    private float NormalizeAngleInDegrees(float angle) => angle % 360;
+    private float NormalizeAngleInDegrees(float angle)
+    {
+        if (angle < 0)
+        {
+            angle += 360;
+        }
+        else if (angle >= 360)
+        {
+            angle -= 360;
+        }
+
+        return angle;
+    }
 
     private bool CheckBBox(BoundingBox bBox)
     {

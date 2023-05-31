@@ -87,5 +87,14 @@ public class Player
         {
             _angle -= rotationSpeed;
         }
+
+        if (_angle < 0)
+        {
+            _angle += 360;
+        }
+        else if (_angle >= 360)
+        {
+            _angle -= 360;
+        }
     }
 }
