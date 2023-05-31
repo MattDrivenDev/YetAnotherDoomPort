@@ -97,6 +97,7 @@ public class MapRenderer
 
     public void Draw(SpriteBatch spriteBatch)
     {
+        spriteBatch.GraphicsDevice.Clear(Color.Black);
         DrawScreenResolution(spriteBatch);
         DrawMapName(spriteBatch);
         DrawLinedefs(spriteBatch);

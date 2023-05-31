@@ -23,6 +23,7 @@ public class Player
 
     public Vector2 Position => _position;
     public float Angle => _angle;
+    public int Height => _engine.BSP.GetSubSectorHeight() + Settings.PlayerHeight;
 
     public void Update(GameTime gameTime)
     {
@@ -85,6 +86,15 @@ public class Player
         if (keyboardState.IsKeyDown(Keys.Right))
         {
             _angle -= rotationSpeed;
+        }
+
+        if (_angle < 0)
+        {
+            _angle += 360;
+        }
+        else if (_angle >= 360)
+        {
+            _angle -= 360;
         }
     }
 }
