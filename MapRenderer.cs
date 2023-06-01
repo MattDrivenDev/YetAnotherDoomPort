@@ -211,6 +211,7 @@ public class MapRenderer
     {
         foreach (var (seg, subSectorIndex) in _bsp.SegsToDraw)
         {
+            var lineid = seg.LinedefId;
             DrawSeg(spriteBatch, seg, subSectorIndex);
         }
     }
