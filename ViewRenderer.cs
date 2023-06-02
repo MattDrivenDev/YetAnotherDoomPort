@@ -56,16 +56,15 @@ public class ViewRenderer
     {
         while (VertsToDraw.Count > 0)
         {
-            // We've already clipped the segs front to back, so
-            // we can draw them in reverse order with painter's
-            // algorithm... This is a bit of a hack, but it works
-            // to hide some of the bugs in the top/bottom clipping.
-            // Ideally, I'd go back and fix the clipping - and I
-            // will completely (since I'd like to make it a little
-            // more easy to reason about), but for now, this works.
-            var vert = VertsToDraw.Last.Value;
-            VertsToDraw.RemoveLast();
+            var vert = VertsToDraw.First.Value;
+            VertsToDraw.RemoveFirst();
 
+            // If the line kind of finishes before it starts, skip it
+            // because the engine draws lines left to right, top to bottom
+            if (vert.YTop > vert.YBottom)
+                continue;
+
+            // If the x coordinate is outside the screen, skip it
             if (vert.X < 0 || vert.X > Settings.Width)
                 continue;
 
